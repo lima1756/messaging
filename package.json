@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "clean": "rimraf build/",
-    "start-dev": "nodemon --config \"./util/nodemon.json\"/",
+    "dev": "nodemon --config \"./util/nodemon.json\"/",
     "test": "ts-node ./src/start.ts test",
     "build:back": "tsc --sourceMap false",
     "prebuild:front": "mkdirp ./build/public",
