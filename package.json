@@ -12,7 +12,8 @@
     "build:front": "cd src/public/react && npm install && npm run build",
     "postbuild:front": "move-cli src/public/react/build build/public/messaging-react",
     "build": "npm run build:back & npm run build:front",
-    "prebuild": "npm run test & npm run clean -s"
+    "prebuild": "npm run test & npm run clean -s",
+    "start":"cd build && node start"
   },
   "repository": {
     "type": "git",
