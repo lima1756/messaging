@@ -13,7 +13,7 @@ class MessagingServer extends Server {
 
     private io: SocketIO.Server;
     private port: number | string;
-    private static readonly PORT: number = 3000;
+    private static readonly PORT: number = 3001;
     private static readonly SERVER_START_MSG: string = 'Demo server started on port: ';
     private static readonly DEV_MSG: string = 'Express Server is running in development mode. ' + 
         'No front-end content is being served.';
@@ -27,6 +27,9 @@ class MessagingServer extends Server {
         this.setupControllers();
         if (process.env.NODE_ENV !== 'production'){
             this.app.get('*', (req, res) => res.send(MessagingServer.DEV_MSG));
+        }
+        else{
+            this.app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'messaging-react', 'index.html')));
         }
     }
 

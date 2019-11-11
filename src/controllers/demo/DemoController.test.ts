@@ -46,7 +46,7 @@ describe('DemoController', () => {
                     if (err) {
                         Logger.Err(err, true);
                     }
-                    expect(res.status).toBe(OK);
+                    expect(res.status).toBe(BAD_REQUEST);
                     expect(res.body.error).toBeTruthy();
                     done();
                 });
