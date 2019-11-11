@@ -17,11 +17,13 @@ class MessagingServer extends Server {
     private static readonly SERVER_START_MSG: string = 'Demo server started on port: ';
     private static readonly DEV_MSG: string = 'Express Server is running in development mode. ' + 
         'No front-end content is being served.';
+    private static readonly PATH: string = path.join(__dirname, 'public', 'messaging-react');
 
     constructor() {
         super(true);
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({extended: true}));
+        this.app.use(express.static(MessagingServer.PATH));
         this.port = process.env.PORT || MessagingServer.PORT;
         this.io = socketIO.listen(this);
         this.setupControllers();
@@ -29,7 +31,7 @@ class MessagingServer extends Server {
             this.app.get('*', (req, res) => res.send(MessagingServer.DEV_MSG));
         }
         else{
-            this.app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'messaging-react', 'index.html')));
+            this.app.get('*', (req, res) => res.sendFile(path.join(MessagingServer.PATH, 'index.html' )));
         }
     }
 
