@@ -4,11 +4,15 @@
   "description": "Simple messaging web-app",
   "main": "index.js",
   "scripts": {
+    "clean": "rimraf build/",
     "start-dev": "nodemon --config \"./util/nodemon.json\"/",
     "test": "ts-node ./src/start.ts test",
-    "build:back": "rimraf build/ && tsc --sourceMap false",
-    "build:front": "mkdirp ./build/public & cd src/public/react & npm run build & cd ../../.. & move-cli src/public/react/build build/public/messaging-react",
-    "build": "npm run build:back & npm run build:front"
+    "build:back": "tsc --sourceMap false",
+    "prebuild:front": "mkdirp ./build/public",
+    "build:front": "cd src/public/react & npm run build",
+    "postbuild:front": "move-cli src/public/react/build build/public/messaging-react",
+    "build": "npm run build:back & npm run build:front",
+    "prebuild": "npm run test & npm run clean -s"
   },
   "repository": {
     "type": "git",

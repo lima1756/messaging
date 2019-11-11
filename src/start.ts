@@ -24,6 +24,7 @@ if(process.argv[2] !== 'test'){
         } else {
             Logger.Err('At least one test has failed :(');
         }
+        return passed;
     });
 
     let testPath = process.argv[3];
