@@ -9,7 +9,7 @@
     "test": "ts-node ./src/start.ts test",
     "build:back": "tsc --sourceMap false",
     "prebuild:front": "mkdirp ./build/public",
-    "build:front": "npm install --prefix src/public/react & npm run build --prefix src/public/react",
+    "build:front": "cd src/public/react && npm install && npm run build",
     "postbuild:front": "move-cli src/public/react/build build/public/messaging-react",
     "build": "npm run build:back & npm run build:front",
     "prebuild": "npm run test & npm run clean -s"
