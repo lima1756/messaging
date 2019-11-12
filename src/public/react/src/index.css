@@ -22,15 +22,6 @@ footer {
   box-sizing: border-box;
 }
 
-@media only screen and (max-width: 992px) {
-  main{
-    padding-left: 0px;
-  }
-  footer {
-    padding-left: 0px;
-  }
-}
-
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
@@ -45,8 +36,104 @@ footer > .container{
   bottom: 0;
   width: 100%;
   background-color: #fafafa ;
+  border-top: 1px solid rgba(0,0,0,0.14);
 }
 
 footer > .container > .row{
   margin-bottom: 0;
+}
+
+nav.top-nav{
+  background-color: white;
+  box-shadow: none;
+  border-bottom: 1px solid rgba(0,0,0,0.14);
+}
+
+.header{
+  color: #212121  ;
+  font-weight: 300;
+  margin:0 0 0 0;
+}
+
+.top-nav{
+  padding-left: 300px;
+}
+
+.top-nav > .container{
+  width:100%; 
+} 
+
+@media only screen and (max-width: 992px) {
+  main{
+    padding-left: 0px;
+  }
+  footer {
+    padding-left: 0px;
+  }
+  .top-nav{
+    padding-left: 0px;
+  }
+}
+
+.row .col.user-bubble{
+  padding: 0;
+}
+
+.user-bubble{
+  height: 100%;
+  margin:auto auto auto 0;
+  max-width: 45px;
+  
+}
+
+.user-bubble > img{
+  clip-path: circle();
+  margin: auto;
+}
+
+.user-bubble.lg{
+  clip-path: circle();
+  margin: auto;
+  max-width: 50px;
+}
+
+
+.message-block{
+  display: flex;
+  width:100%;
+}
+
+div.message-block{
+  margin-bottom: 5px;
+}
+
+.lateral-bar-btn{
+  color: #212121;
+}
+
+header > ul.hideNav{
+  transform: translateX(0px);
+}
+@media only screen and (max-width: 992px) {
+  header >  ul.showNav.sidenav{
+    transform: translateX(0%);
+  }
+
+  header > ul.hideNav.sidenav{
+    transform: translateX(-105px);
+  }
+}
+
+nav h2 > i.header-icon{
+  display: inline;
+  margin-right: 5px;
+  font-size: 30px;
+}
+
+.search{
+  margin: 3px;
+}
+
+i.prefix{
+  margin: 5px 0 0 0;
 }
