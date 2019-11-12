@@ -137,3 +137,14 @@ nav h2 > i.header-icon{
 i.prefix{
   margin: 5px 0 0 0;
 }
+
+nav button.sidenav-trigger{
+  margin: auto;
+  padding: 0;
+}
+
+.center-flex{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

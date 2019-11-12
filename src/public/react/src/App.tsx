@@ -1,16 +1,17 @@
 import React, {useState} from 'react';
-import logo from './logo.svg';
 import './App.css';
-import { Icon, Button, SideNav, SideNavItem, TextInput, Textarea } from 'react-materialize';
+import { Button ,Icon, Modal, SideNav, SideNavItem, TextInput, Textarea } from 'react-materialize';
 
 const App: React.FC = () => {
 
   const [sideBarVisible, setSideBarVisible] = useState(false);
+  const [signUpModal, setSignUpModal] = useState(true);
   const overlayStyle = {
-    display: sideBarVisible?"block":"none", 
+    display: sideBarVisible||signUpModal?"block":"none", 
     opacity: sideBarVisible?1:0
   };
-  const switchSideBar = ():void=>{setSideBarVisible(!sideBarVisible)};
+  const signUp = ():boolean=>{return true}
+  const signUpError = ():void=>{}
   return (
     <div>
       <header>
@@ -18,10 +19,10 @@ const App: React.FC = () => {
           <div className="container">
             <div className="nav-wrapper">
               <div className="row">
-                <div className="col s1 m1 full hide-on-large-only">
-                  <a href="#"  className="top-nav sidenav-trigger lateral-bar-btn" onClick={switchSideBar}>
+                <div className="col s1 m1 full hide-on-large-only center-flex">
+                  <button className="btn-flat top-nav sidenav-trigger lateral-bar-btn" onClick={()=>setSideBarVisible(!sideBarVisible)}>
                     <i className="material-icons">menu</i>
-                  </a>
+                  </button>
                 </div>
                 <div className="col s11 m11 l12">
                   <h2 className="header">
@@ -111,7 +112,23 @@ const App: React.FC = () => {
         </div>
 
       </footer>
-      <div className="sidenav-overlay" style={overlayStyle} onClick={switchSideBar}></div>
+      <Modal header="Welcome!" bottomSheet open={signUpModal} 
+        actions={[
+          <Button type="submit" waves="light" onClick={()=>{if(signUp())setSignUpModal(false);else signUpError();}}>
+            Sign-Up
+            <Icon right>
+            assignment_turned_in
+            </Icon>
+          </Button>
+        ]}
+        options={{dismissible:false}}
+        >
+        Before start chatting with your friends, please create your account:
+        <TextInput label="Name" />
+        <TextInput label="email" />
+        
+      </Modal>
+      <div className="sidenav-overlay" style={overlayStyle} onClick={()=>{setSideBarVisible(false);}}></div>
     </div>
   );
 }
