@@ -7,25 +7,36 @@ import { Button ,Icon, Textarea } from 'react-materialize';
 import ls from 'local-storage';
 import socketIOClient from "socket.io-client";
 import request from 'superagent';
-import {Secrets} from './secrets/secrets'
+import {Secrets} from './secrets/secrets';
+import Primes from './constants/primes';
 
 
 const SelectContact = (contact: Contact) : void => {
   
 }
 
+const gcd = (n: number, m: number) : number => {
+  if(m===0)
+    return n;
+  return gcd(m, n%m);
+}
 
-
-const signUpError = () : void => {
-
+const genKeysRSA = () => {
+  const p = Primes[Math.floor(Math.random()*2000)];
+  const q = Primes[Math.floor(Math.random()*2000)];
+  const n = p*q;
+  const phi = (p-1)*(q-1);
+  let e : number;
+  for(e = 3; e < phi && gcd(e,phi)===1; e++){ continue; }
+  let d : number;
+  for(d = phi-1; (e * d) % phi == 1; d--) { continue; }
+  return [n, e, d];
 }
 
 const App: React.FC = () => {
   const [sideBarVisible, setSideBarVisible] = useState(false);
   const [signUpModal, setSignUpModal] = useState(ls("current")===null);
   const [currentUser, setCurrentUser] = useState<Contact>(ls("current") as unknown as Contact);
-
-  
 
   const socket = socketIOClient.connect("http://localhost:3002");
 
@@ -36,13 +47,15 @@ const App: React.FC = () => {
         .field('file', image)
         .end((error, response) => {
             if(!error){
+              const keys = genKeysRSA();
               const user : Contact = {
                 name: name,
                 email: email,
                 image: response.body.secure_url,
-                publicKey: {}
+                publicKey: [keys[0], keys[1]]
               }
               ls("current", user);
+              ls("p_key",keys[2]);
               setCurrentUser(user);
               socket.emit("signup", user);
               setSignUpModal(false);
@@ -87,7 +100,7 @@ const App: React.FC = () => {
         </div>
 
       </footer>
-      <SignUpModal visible={signUpModal} signUp={signUp} signUpError={signUpError} setVisible={setSignUpModal}/>
+      <SignUpModal visible={signUpModal} signUp={signUp} setVisible={setSignUpModal}/>
       <div className="sidenav-overlay" style={overlayStyle} onClick={()=>{setSideBarVisible(false);}}></div>
     </div>
   );

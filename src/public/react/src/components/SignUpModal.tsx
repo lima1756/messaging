@@ -4,7 +4,7 @@ import { Button, Icon, Modal, TextInput } from 'react-materialize';
 interface props{
     visible: Boolean;
     signUp: Function;
-    signUpError: Function;
+    signUpError?: Function;
     setVisible: Function;
 }
 
