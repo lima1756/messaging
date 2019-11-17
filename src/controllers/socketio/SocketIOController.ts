@@ -19,18 +19,34 @@ class SocketIOController {
             socket.on('addFriend', (data) => {
                 Logger.Info("adding a friend");
                 const userRequest: User = this.userManagement.getUser(data.from.email);
-                this.userManagement.updateUser(userRequest).then();
-                let friend = this.userManagement.getUserNoSocket(data.friendEmail);
+                const user = this.userManagement.getUserNoSocket(data.from.email);
+                this.userManagement.updateUser(userRequest);
+                const friend = this.userManagement.getUserNoSocket(data.friendEmail);
+                const friendSocket = this.userManagement.getUser(data.friendEmail).socket;
                 if(friend){
-                    socket.broadcast.to(userRequest.socket.id).emit('addFriend', {
+                    console.log(userRequest);
+                    userRequest.socket.emit('addFriend', {
                         userExist: true,
                         user: friend
-                    })
+                    });
+                    friendSocket.emit('addFriend', {
+                        userExist: true,
+                        user: user
+                    });
+                    
+                    // socket.broadcast.to(userRequest.socket.id).emit('addFriend', {
+                    //     userExist: true,
+                    //     user: friend
+                    // })
                 }
                 else {
-                    socket.broadcast.to(userRequest.socket.id).emit('addFriend', {
-                        userExist: false,
-                    })
+                    Logger.Err("Friend not found");
+                    userRequest.socket.emit('addFriend', {
+                        userExist: false
+                    });
+                    // socket.broadcast.to(userRequest.socket.id).emit('addFriend', {
+                    //     userExist: false,
+                    // })
                 }
             });
 
@@ -39,10 +55,9 @@ class SocketIOController {
                 const user : User = {
                     name: data.name,
                     email: data.email,
-                    image: "",
-                    publicKey: data.key,
+                    image: data.image,
+                    publicKey: data.publicKey,
                     socket: socket,
-
                 }
                 this.userManagement.connectUser(user);
             });

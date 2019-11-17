@@ -1,5 +1,6 @@
 import { Logger } from '@overnightjs/logger';
 import User from '../types/User';
+import { json } from 'express';
 
 
 class UserManagement {
@@ -46,7 +47,7 @@ class UserManagement {
     } 
 
     public getUserNoSocket(email: string) : Object|undefined {
-        let usr = this.getUser(email);
+        let usr = {...this.getUser(email)};
         if(usr) {
             delete usr.socket;
             return usr;
