@@ -13,7 +13,7 @@
     "postbuild:front": "move-cli src/public/react/build build/public/messaging-react",
     "build": "npm run build:back & npm run build:front",
     "prebuild": "npm run test & npm run clean -s",
-    "start":"cd build && node start"
+    "start": "cd build && node start"
   },
   "repository": {
     "type": "git",
@@ -43,7 +43,9 @@
   "dependencies": {
     "@overnightjs/core": "^1.6.9",
     "@overnightjs/logger": "^1.1.9",
+    "@types/cors": "^2.8.6",
     "@types/socket.io": "^2.1.4",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "http-status-codes": "^1.4.0",
     "socket.io": "^2.3.0"

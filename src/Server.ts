@@ -5,13 +5,13 @@ import * as controllers from './controllers';
 import { Server } from '@overnightjs/core';
 import { Logger } from '@overnightjs/logger';
 import * as socketIO from 'socket.io'
-import { ChatEvent } from './constants/ChatEvent';
-import { ChatMessage } from './types/ChatMessage';
+import SocketIOController from './controllers/socketio/SocketIOController';
+import cors from 'cors';
 
 
 class MessagingServer extends Server {
 
-    private io: SocketIO.Server;
+    private io: SocketIOController;
     private port: number | string;
     private static readonly PORT: number = 3001;
     private static readonly SERVER_START_MSG: string = 'Demo server started on port: ';
@@ -21,11 +21,12 @@ class MessagingServer extends Server {
 
     constructor() {
         super(true);
+        this.app.use(cors);
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({extended: true}));
         this.app.use(express.static(MessagingServer.PATH));
         this.port = process.env.PORT || MessagingServer.PORT;
-        this.io = socketIO.listen(this);
+        this.io = new SocketIOController(socketIO.listen(3002));
         this.setupControllers();
         if (process.env.NODE_ENV !== 'production'){
             this.app.get('*', (req, res) => res.send(MessagingServer.DEV_MSG));
@@ -51,18 +52,7 @@ class MessagingServer extends Server {
             Logger.Imp(MessagingServer.SERVER_START_MSG + this.port);
         });
 
-        this.io.on(ChatEvent.CONNECT, (socket: any) => {
-            console.log('Connected client on port %s.', this.port);
-      
-            socket.on(ChatEvent.MESSAGE, (m: ChatMessage) => {
-              console.log('[server](message): %s', JSON.stringify(m));
-              this.io.emit('message', m);
-            });
-      
-            socket.on(ChatEvent.DISCONNECT, () => {
-              console.log('Client disconnected');
-            });
-        });
+        this.io.socketEvents();
     }
 }
 

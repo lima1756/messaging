@@ -1,7 +1,4 @@
 import React from 'react';
-import { Button ,Icon, Modal, SideNav, SideNavItem, TextInput, Textarea } from 'react-materialize';
-
-
 
 interface props{
     message: string;

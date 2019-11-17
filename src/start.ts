@@ -12,7 +12,8 @@ if(process.argv[2] !== 'test'){
     jasmine.loadConfig({
         "spec_dir": "src",
         "spec_files": [
-            "./controllers/**/*.test.ts"
+            "./controllers/**/*.test.ts",
+            "./**/*.test.ts"
         ],
         "stopSpecOnExpectationFailure": false,
         "random": true

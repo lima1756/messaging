@@ -3,30 +3,58 @@ import Header from './components/Header';
 import SignUpModal from './components/SignUpModal';
 import Message from './components/Message';
 import './App.css';
-import { Button ,Icon, Modal, SideNav, SideNavItem, TextInput, Textarea } from 'react-materialize';
+import { Button ,Icon, Textarea } from 'react-materialize';
+import ls from 'local-storage';
+import socketIOClient from "socket.io-client";
+
 
 const SelectContact = (contact: Contact) : void => {
   
 }
 
-const App: React.FC = () => {
 
+
+const signUpError = () : void => {
+
+}
+
+const App: React.FC = () => {
   const [sideBarVisible, setSideBarVisible] = useState(false);
-  const [signUpModal, setSignUpModal] = useState(true);
+  const [signUpModal, setSignUpModal] = useState(ls("current")===null);
+  const [currentUser, setCurrentUser] = useState<Contact>(ls("current") as unknown as Contact);
+
+  
+
+  const socket = socketIOClient.connect("http://localhost:3002");
+
+  const signUp = (name: string, email: string) : void => {
+    const user : Contact = {
+      name: name,
+      email: email,
+      image: "",
+      publicKey: {}
+    }
+    console.log("wrintg");
+    ls("current", user);
+    console.log("saving");
+    setCurrentUser(user);
+    console.log("emit");
+    socket.emit("signup", user);
+    setSignUpModal(false);
+  }
+
   const overlayStyle = {
     display: sideBarVisible||signUpModal?"block":"none", 
     opacity: sideBarVisible?1:0
   };
-  const signUp = ():boolean=>{return true}
-  const signUpError = ():void=>{}
+ 
   return (
     <div>
-      <Header sideBarVisible={sideBarVisible} setSideBarVisible={setSideBarVisible} onContactClick={SelectContact}/>
+      <Header currentUser={currentUser} sideBarVisible={sideBarVisible} setSideBarVisible={setSideBarVisible} onContactClick={SelectContact}/>
       <main>
         <div className='container'>
           <Message message="test" currentUser={true} />
           <Message message="test2" currentUser={false} />
-
         </div>
       </main>
       <footer className="message-footer">
