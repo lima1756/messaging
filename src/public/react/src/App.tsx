@@ -9,6 +9,7 @@ import socketIOClient from "socket.io-client";
 import request from 'superagent';
 import {Secrets} from './secrets/secrets';
 import Primes from './constants/primes';
+import FakeChat from './components/FakeChat';
 
 
 const SelectContact = (contact: Contact) : void => {
@@ -29,7 +30,7 @@ const genKeysRSA = () => {
   let e : number;
   for(e = 3; e < phi && gcd(e,phi)===1; e++){ continue; }
   let d : number;
-  for(d = phi-1; (e * d) % phi == 1; d--) { continue; }
+  for(d = phi-1; (e * d) % phi === 1; d--) { continue; }
   return [n, e, d];
 }
 
@@ -37,9 +38,33 @@ const App: React.FC = () => {
   const [sideBarVisible, setSideBarVisible] = useState(false);
   const [signUpModal, setSignUpModal] = useState(ls("current")===null);
   const [currentUser, setCurrentUser] = useState<Contact>(ls("current") as unknown as Contact);
+  const [currentChat, setCurrentChat] = useState();
+  const [friendList, setFriendList] = useState(ls("friends") as any||{});
+
+  const helpUser : Contact = {
+    name: "Welcome!",
+    image: "person.jpg",
+    email: "",
+    publicKey: "",
+  }
 
   const socket = socketIOClient.connect("http://localhost:3002");
+  socket.on("addFriend", (data: any)=>{
+    if(data.userExist){
+      const list = Object.assign({}, friendList);
+      list[data.user.email] = data.user;
+      setFriendList(list);
+      ls("friends", list);
+    }
+    else {
+      alert("User doesn't exist, please check the email.")
+    }
+  });
 
+  if(currentUser){
+    socket.emit("signup", currentUser);
+  };
+  
   const signUp = (name: string, email: string, image: any) : void => {
     if(image){
       request.post(`https://api.cloudinary.com/v1_1/${ Secrets.C_NAME }/upload`)
@@ -69,6 +94,13 @@ const App: React.FC = () => {
     
   }
 
+  const addFriend = (email: string): void => {
+    socket.emit("addFriend", {
+      from: currentUser,
+      friendEmail: email,
+    });
+  }
+
   const overlayStyle = {
     display: sideBarVisible||signUpModal?"block":"none", 
     opacity: sideBarVisible?1:0
@@ -76,11 +108,15 @@ const App: React.FC = () => {
  
   return (
     <div>
-      <Header currentUser={currentUser} sideBarVisible={sideBarVisible} setSideBarVisible={setSideBarVisible} onContactClick={SelectContact}/>
+      <Header currentUser={currentUser} sideBarVisible={sideBarVisible} 
+        setSideBarVisible={setSideBarVisible} onContactClick={SelectContact} 
+        chatUser={currentChat ? currentChat.user: helpUser}
+        addFriend={addFriend} contacts={friendList}/>
       <main>
         <div className='container'>
-          <Message message="test" currentUser={true} image={currentUser.image}/>
-          <Message message="test2" currentUser={false} />
+          {currentChat ? 'todo': <FakeChat/>}
+          {/* <Message message="test" currentUser={true} image={currentUser.image}/>
+          <Message message="test2" currentUser={false} /> */}
         </div>
       </main>
       <footer className="message-footer">

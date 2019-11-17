@@ -1,16 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SideNav, SideNavItem, TextInput } from 'react-materialize';
 
 interface props{
     sideBarVisible: Boolean;
     setSideBarVisible: Function;
     onContactClick: Function;
+    addFriend: Function;
     currentUser?: Contact;
     chatUser?: Contact;
-    contacts?: Contact[];
+    contacts?: any;
 }
 
-const Header: React.FC<props> = ({sideBarVisible, setSideBarVisible, onContactClick, currentUser, chatUser, contacts}) => {
+const changeHandle = (e: React.FormEvent<HTMLInputElement>, setter: Function) => {
+    if(e && e.currentTarget && e.currentTarget.value){
+        setter(e.currentTarget.value);
+    } else if (e && e.currentTarget){
+        setter("");
+    }
+}
+
+const Header: React.FC<props> = ({sideBarVisible, setSideBarVisible, onContactClick, currentUser, chatUser, contacts, addFriend}) => {
+    const [searchUser, setSearchUser] = useState("");
+    //console.log(contacts);
     return (
         <header>
             <nav className="top-nav">
@@ -44,14 +55,19 @@ const Header: React.FC<props> = ({sideBarVisible, setSideBarVisible, onContactCl
                 </SideNavItem>
                 <SideNavItem divider={true} />
                 <SideNavItem>
-                    <TextInput icon="group_add" label="Search user" className="search" />
+                    <TextInput icon="group_add" label="Search user" className="search" 
+                        value={searchUser} onChange={(e:React.FormEvent<HTMLInputElement>) => changeHandle(e, setSearchUser)}
+                        onKeyDown={(e: any)=>{if(e.keyCode===13)addFriend(searchUser)}} />
                 </SideNavItem>
                 <SideNavItem divider={true} />
-                {contacts?contacts.forEach(contact => {
-                    return <SideNavItem href="#!icon" icon="person" onClick={()=>{onContactClick(contact)}}>
-                        {contact.name} - {contact.email}
-                    </SideNavItem>
-                }):""}
+                {Object.keys(contacts).map(
+                    (key)=>
+                    (
+                        <SideNavItem icon="person" onClick={()=>{onContactClick(contacts[key])}} key={key}>
+                            {contacts[key].name} - {key}
+                        </SideNavItem>
+                    )
+                )}
                 
             </SideNav>
         </header>

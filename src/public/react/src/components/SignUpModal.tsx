@@ -11,6 +11,8 @@ interface props{
 const changeHandle = (e: React.FormEvent<HTMLInputElement>, setter: Function) => {
     if(e && e.currentTarget && e.currentTarget.value){
         setter(e.currentTarget.value);
+    } else if (e && e.currentTarget){
+        setter("");
     }
 }
 
