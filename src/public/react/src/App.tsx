@@ -6,6 +6,8 @@ import './App.css';
 import { Button ,Icon, Textarea } from 'react-materialize';
 import ls from 'local-storage';
 import socketIOClient from "socket.io-client";
+import request from 'superagent';
+import {Secrets} from './secrets/secrets'
 
 
 const SelectContact = (contact: Contact) : void => {
@@ -27,20 +29,31 @@ const App: React.FC = () => {
 
   const socket = socketIOClient.connect("http://localhost:3002");
 
-  const signUp = (name: string, email: string) : void => {
-    const user : Contact = {
-      name: name,
-      email: email,
-      image: "",
-      publicKey: {}
+  const signUp = (name: string, email: string, image: any) : void => {
+    if(image){
+      request.post(`https://api.cloudinary.com/v1_1/${ Secrets.C_NAME }/upload`)
+        .field('upload_preset', 'unique')
+        .field('file', image)
+        .end((error, response) => {
+            if(!error){
+              const user : Contact = {
+                name: name,
+                email: email,
+                image: response.body.secure_url,
+                publicKey: {}
+              }
+              ls("current", user);
+              setCurrentUser(user);
+              socket.emit("signup", user);
+              setSignUpModal(false);
+            }
+            else
+            {
+              alert("There was an error, please try again later.") 
+            }
+        });
     }
-    console.log("wrintg");
-    ls("current", user);
-    console.log("saving");
-    setCurrentUser(user);
-    console.log("emit");
-    socket.emit("signup", user);
-    setSignUpModal(false);
+    
   }
 
   const overlayStyle = {
@@ -53,7 +66,7 @@ const App: React.FC = () => {
       <Header currentUser={currentUser} sideBarVisible={sideBarVisible} setSideBarVisible={setSideBarVisible} onContactClick={SelectContact}/>
       <main>
         <div className='container'>
-          <Message message="test" currentUser={true} />
+          <Message message="test" currentUser={true} image={currentUser.image}/>
           <Message message="test2" currentUser={false} />
         </div>
       </main>
