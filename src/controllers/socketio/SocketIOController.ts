@@ -33,20 +33,12 @@ class SocketIOController {
                         userExist: true,
                         user: user
                     });
-                    
-                    // socket.broadcast.to(userRequest.socket.id).emit('addFriend', {
-                    //     userExist: true,
-                    //     user: friend
-                    // })
                 }
                 else {
                     Logger.Err("Friend not found");
                     userRequest.socket.emit('addFriend', {
                         userExist: false
                     });
-                    // socket.broadcast.to(userRequest.socket.id).emit('addFriend', {
-                    //     userExist: false,
-                    // })
                 }
             });
 
@@ -62,13 +54,13 @@ class SocketIOController {
                 this.userManagement.connectUser(user);
             });
 
-            socket.on('message', (data) => {
-                Logger.Info("Sending a message");
+            socket.on('sendMsg', (data) => {
+                Logger.Info("Sending a message - " + data.message);
                 this.userManagement.updateUser(this.userManagement.getUser(data.from.email));
                 const to: User = this.userManagement.getUser(data.to.email);
                 let from = this.userManagement.getUserNoSocket(data.from.email);
-                socket.broadcast.to(to.socket.id).emit('sendMsg', {
-                    msg: data.msg,
+                to.socket.emit("sendMsg",  {
+                    message: data.message,
                     from: from
                 });
             });

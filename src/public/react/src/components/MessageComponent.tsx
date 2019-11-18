@@ -6,7 +6,7 @@ interface props{
     image?: string;
 }
 
-const Message: React.FC<props> = ({message, currentUser = true, image}) => {
+const MessageComponent: React.FC<props> = ({message, currentUser = true, image}) => {
     if(currentUser)
         return (
             <div className='row message-block'>
@@ -41,4 +41,4 @@ const Message: React.FC<props> = ({message, currentUser = true, image}) => {
     
 }
 
-export default Message;
+export default MessageComponent;

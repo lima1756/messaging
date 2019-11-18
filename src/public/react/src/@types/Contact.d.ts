@@ -3,4 +3,5 @@ interface Contact{
     email: String;
     image: string;
     publicKey: Object;
+    messages?: Message[];
 }

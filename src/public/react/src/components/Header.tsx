@@ -21,7 +21,10 @@ const changeHandle = (e: React.FormEvent<HTMLInputElement>, setter: Function) =>
 
 const Header: React.FC<props> = ({sideBarVisible, setSideBarVisible, onContactClick, currentUser, chatUser, contacts, addFriend}) => {
     const [searchUser, setSearchUser] = useState("");
-    //console.log(contacts);
+    if(chatUser){
+        console.log(chatUser.name);
+        console.log(chatUser.image);
+    }
     return (
         <header>
             <nav className="top-nav">

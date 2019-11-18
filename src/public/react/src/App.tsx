@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import Header from './components/Header';
+import Chat from './components/Chat';
 import SignUpModal from './components/SignUpModal';
-import Message from './components/Message';
 import './App.css';
 import { Button ,Icon, Textarea } from 'react-materialize';
 import ls from 'local-storage';
@@ -9,17 +9,50 @@ import socketIOClient from "socket.io-client";
 import request from 'superagent';
 import {Secrets} from './secrets/secrets';
 import Primes from './constants/primes';
-import FakeChat from './components/FakeChat';
+import int from 'int';
 
-
-const SelectContact = (contact: Contact) : void => {
-  
+const powerModulus = (base: number, exponent: number, modulo: number) : number => {
+  let intBase = int(base);
+  let intExponent = int(exponent);
+  let intModulo = int(modulo);
+  let res = int(1);
+  intBase = intBase.mod(intModulo);
+  while(parseInt(intExponent.toString())>0){
+    if( intExponent.mod(2).toString() === int(1).toString()){
+      
+      res = res.mul(intBase).mod(intModulo);
+    }
+    intExponent = intExponent.div(2);
+    intBase = intBase.mul(intBase).mod(intModulo);
+  }
+  return parseInt(res.toString());
 }
 
-const gcd = (n: number, m: number) : number => {
-  if(m===0)
-    return n;
-  return gcd(m, n%m);
+
+const cypher = (msg: string, key: number[]) : string => {
+  let encrypted = ""
+  for(let i = 0; i < msg.length; i++){
+    encrypted += powerModulus(msg.charCodeAt(i), key[1], key[0])+ ',';
+  }
+  return encrypted;
+}
+
+const decypher = (msg: string, key: number[]) : string => {
+  let decrypted = ""
+  const msgData = msg.split(',').map(val=>parseInt(val));
+  for(let i = 0; i < msgData.length-1; i++){
+    console.log("enc - " + msgData[i] + ' #### dec - ' + powerModulus(msgData[i], key[2], key[0]));
+    decrypted += String.fromCharCode(powerModulus(msgData[i], key[2], key[0]));
+  }
+  return decrypted;
+}
+
+
+const gcdExt = (a: number, b: number) : number[] => {
+  if(b === 0)
+    return [a, 1, 0];
+  let [gcd, x, y] = gcdExt(b, a%b);
+  return [gcd, y, x - Math.floor(a/b) * y];
 }
 
 const genKeysRSA = () => {
@@ -27,11 +60,15 @@ const genKeysRSA = () => {
   const q = Primes[Math.floor(Math.random()*2000)];
   const n = p*q;
   const phi = (p-1)*(q-1);
-  let e : number;
-  for(e = 3; e < phi && gcd(e,phi)===1; e++){ continue; }
-  let d : number;
-  for(d = phi-1; (e * d) % phi === 1; d--) { continue; }
-  return [n, e, d];
+  let gcd = 0;
+  let e  = 0;
+  let d = 0;
+  for(e = 3; e < phi; e++){ 
+    [gcd, d, ] = gcdExt(e,phi);
+    if(gcd===1) {break;} 
+  }
+  console.log(phi);
+  return [n, e, d>0?d:phi+d];
 }
 
 const App: React.FC = () => {
@@ -52,7 +89,17 @@ const App: React.FC = () => {
   socket.on("addFriend", (data: any)=>{
     if(data.userExist){
       const list = Object.assign({}, friendList);
-      list[data.user.email] = data.user;
+      if(!list[data.user.email])
+      {
+        list[data.user.email] = data.user;
+        list[data.user.email].messages = [];
+      }
+      else{
+        list[data.user.email].name = data.user.name;
+        list[data.user.email].email = data.user.email;
+        list[data.user.email].image = data.user.image;
+        list[data.user.email].publicKey = data.user.name;
+      }
       setFriendList(list);
       ls("friends", list);
     }
@@ -60,11 +107,14 @@ const App: React.FC = () => {
       alert("User doesn't exist, please check the email.")
     }
   });
+  socket.on("sendMsg", (data: any)=>{
+    const decypherMsg = data.message
+  })
 
   if(currentUser){
     socket.emit("signup", currentUser);
   };
-  
+ 
   const signUp = (name: string, email: string, image: any) : void => {
     if(image){
       request.post(`https://api.cloudinary.com/v1_1/${ Secrets.C_NAME }/upload`)
@@ -80,7 +130,7 @@ const App: React.FC = () => {
                 publicKey: [keys[0], keys[1]]
               }
               ls("current", user);
-              ls("p_key",keys[2]);
+              ls("keys",keys);
               setCurrentUser(user);
               socket.emit("signup", user);
               setSignUpModal(false);
@@ -101,6 +151,10 @@ const App: React.FC = () => {
     });
   }
 
+  const selectContact = (contact: Contact) : void => {
+    setCurrentChat(contact);
+  }
+
   const overlayStyle = {
     display: sideBarVisible||signUpModal?"block":"none", 
     opacity: sideBarVisible?1:0
@@ -109,16 +163,10 @@ const App: React.FC = () => {
   return (
     <div>
       <Header currentUser={currentUser} sideBarVisible={sideBarVisible} 
-        setSideBarVisible={setSideBarVisible} onContactClick={SelectContact} 
-        chatUser={currentChat ? currentChat.user: helpUser}
+        setSideBarVisible={setSideBarVisible} onContactClick={selectContact} 
+        chatUser={currentChat ? currentChat : helpUser}
         addFriend={addFriend} contacts={friendList}/>
-      <main>
-        <div className='container'>
-          {currentChat ? 'todo': <FakeChat/>}
-          {/* <Message message="test" currentUser={true} image={currentUser.image}/>
-          <Message message="test2" currentUser={false} /> */}
-        </div>
-      </main>
+      <Chat currentChat={currentChat} user={currentUser}/>
       <footer className="message-footer">
         <div className="container">
           <div className="row">
