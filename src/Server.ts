@@ -21,26 +21,21 @@ class MessagingServer extends Server {
 
     constructor() {
         super(true);
-        Logger.Info("Loading");
         this.app.use(cors);
-        Logger.Info("CORS ready");
         this.app.use(bodyParser.json());
-        Logger.Info("json ready");
         this.app.use(bodyParser.urlencoded({extended: true}));
-        Logger.Info("url ready");
         this.app.use(express.static(MessagingServer.PATH));
-        Logger.Info("static ready");
         this.port = process.env.PORT || MessagingServer.PORT;
         this.io = new SocketIOController(socketIO.listen(3002));
-        Logger.Info("socket io");
         this.setupControllers();
-        Logger.Info("controllers");
         if (process.env.NODE_ENV !== 'production'){
             this.app.get('*', (req, res) => res.send(MessagingServer.DEV_MSG));
         }
         else{
-            this.app.get('*', (req, res) => res.sendFile(path.join(MessagingServer.PATH, 'index.html' )));
-            Logger.Info("served");
+            this.app.get('*', (req, res) => {
+                Logger.Info("SERVING!!!");
+                res.sendFile(path.join(MessagingServer.PATH, 'index.html' ))
+            });
         }
     }
 
