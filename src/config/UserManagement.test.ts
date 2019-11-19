@@ -17,14 +17,14 @@ describe('UserManagement', () => {
             email: "ab@email.com",
             image: "ab.jpg",
             publicKey: {},
-            port: undefined
+            socket: undefined
         })
         userManagement.connectUser({
             name: "BB CC",
             email: "cc@email.com",
             image: "cc.jpg",
             publicKey: {},
-            port: undefined
+            socket: undefined
         })
         done();
     });
