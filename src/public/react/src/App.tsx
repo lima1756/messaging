@@ -6,7 +6,6 @@ import SignUpModal from './components/SignUpModal';
 import ls from 'local-storage';
 import socketIOClient from "socket.io-client";
 import request from 'superagent';
-import {Secrets} from './secrets/secrets';
 import Primes from './constants/primes';
 import int from 'int';
 import Footer from './components/Footer';
@@ -124,7 +123,7 @@ const App: React.FC = () => {
  
   const signUp = (name: string, email: string, image: any) : void => {
     if(image){
-      request.post(`https://api.cloudinary.com/v1_1/${ Secrets.C_NAME }/upload`)
+      request.post(`https://api.cloudinary.com/v1_1/dbonajrfw/upload`)
         .field('upload_preset', 'unique')
         .field('file', image)
         .end((error, response) => {
