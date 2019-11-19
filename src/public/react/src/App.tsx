@@ -1,17 +1,17 @@
+import './App.css';
 import React, {useState} from 'react';
 import Header from './components/Header';
 import Chat from './components/Chat';
 import SignUpModal from './components/SignUpModal';
-import './App.css';
-import { Button ,Icon, Textarea } from 'react-materialize';
 import ls from 'local-storage';
 import socketIOClient from "socket.io-client";
 import request from 'superagent';
 import {Secrets} from './secrets/secrets';
 import Primes from './constants/primes';
 import int from 'int';
+import Footer from './components/Footer';
 
-const powerModulus = (base: number, exponent: number, modulo: number) : number => {
+const powerModulus = (base: string, exponent: string, modulo: string) : string => {
   let intBase = int(base);
   let intExponent = int(exponent);
   let intModulo = int(modulo);
@@ -25,50 +25,50 @@ const powerModulus = (base: number, exponent: number, modulo: number) : number =
     intExponent = intExponent.div(2);
     intBase = intBase.mul(intBase).mod(intModulo);
   }
-  return parseInt(res.toString());
+  return res.toString();
 }
 
 
-const cypher = (msg: string, key: number[]) : string => {
+const cypher = (msg: string, key: string[]) : string => {
   let encrypted = ""
   for(let i = 0; i < msg.length; i++){
-    encrypted += powerModulus(msg.charCodeAt(i), key[1], key[0])+ ',';
+    encrypted += powerModulus(msg.charCodeAt(i).toString(), key[1], key[0])+ ',';
   }
   return encrypted;
 }
 
-const decypher = (msg: string, key: number[]) : string => {
+const decypher = (msg: string, key: string[]) : string => {
   let decrypted = ""
-  const msgData = msg.split(',').map(val=>parseInt(val));
+  const msgData = msg.split(',');
   for(let i = 0; i < msgData.length-1; i++){
-    console.log("enc - " + msgData[i] + ' #### dec - ' + powerModulus(msgData[i], key[2], key[0]));
-    decrypted += String.fromCharCode(powerModulus(msgData[i], key[2], key[0]));
+    decrypted += String.fromCharCode(parseInt(powerModulus(msgData[i], key[2], key[0])));
   }
   return decrypted;
 }
 
 
-const gcdExt = (a: number, b: number) : number[] => {
-  if(b === 0)
-    return [a, 1, 0];
-  let [gcd, x, y] = gcdExt(b, a%b);
-  return [gcd, y, x - Math.floor(a/b) * y];
+const gcdExt = (a: any, b: any) : any[] => {
+  if(parseInt(b.toString()) === 0)
+    return [a, int(1), int(0)];
+  let [gcd, x, y] = gcdExt(b, a.mod(b));
+  return [gcd, y, x.sub(a.div(b).mul(y))];
 }
 
 const genKeysRSA = () => {
-  const p = Primes[Math.floor(Math.random()*2000)];
-  const q = Primes[Math.floor(Math.random()*2000)];
-  const n = p*q;
-  const phi = (p-1)*(q-1);
-  let gcd = 0;
-  let e  = 0;
-  let d = 0;
-  for(e = 3; e < phi; e++){ 
+  const p = int(Primes[Math.floor(Math.random()*2000)]);
+  const q = int(Primes[Math.floor(Math.random()*2000)]);
+  const n = p.mul(q);
+  const phi = int(p.sub(1)).mul(q.sub(1));
+  let gcd = int(0);
+  let e  = int(3);
+  let d = int(0);
+  for(let i = 3; i < phi; i++){ 
+    e = int(i);
     [gcd, d, ] = gcdExt(e,phi);
-    if(gcd===1) {break;} 
+    if(parseInt(gcd.toString())===1) {break;} 
   }
-  console.log(phi);
-  return [n, e, d>0?d:phi+d];
+  d = parseInt(d.toString())>0?d:phi.add(d).toString();
+  return [n.toString(), e.toString(), d.toString()];
 }
 
 const App: React.FC = () => {
@@ -108,7 +108,14 @@ const App: React.FC = () => {
     }
   });
   socket.on("sendMsg", (data: any)=>{
-    const decypherMsg = data.message
+    const decypherMsg = decypher(data.message, ls("keys") as any);
+    let friends = ls("friends") as any;
+    friends[data.from.email].messages.push({
+      message: decypherMsg,
+      self: false,
+      timestamp: Date.now()
+    })
+    setFriendList(friends);
   })
 
   if(currentUser){
@@ -147,7 +154,7 @@ const App: React.FC = () => {
   const addFriend = (email: string): void => {
     socket.emit("addFriend", {
       from: currentUser,
-      friendEmail: email,
+      friendEmail: cypher(email, ls("keys") as any),
     });
   }
 
@@ -155,11 +162,19 @@ const App: React.FC = () => {
     setCurrentChat(contact);
   }
 
+  const sendMessage = (message: string) => {
+    socket.emit("addFriend", {
+      from: currentUser,
+      to: currentChat,
+      message: message
+    });
+  }
+
   const overlayStyle = {
     display: sideBarVisible||signUpModal?"block":"none", 
     opacity: sideBarVisible?1:0
   };
- 
+
   return (
     <div>
       <Header currentUser={currentUser} sideBarVisible={sideBarVisible} 
@@ -167,23 +182,7 @@ const App: React.FC = () => {
         chatUser={currentChat ? currentChat : helpUser}
         addFriend={addFriend} contacts={friendList}/>
       <Chat currentChat={currentChat} user={currentUser}/>
-      <footer className="message-footer">
-        <div className="container">
-          <div className="row">
-            <div className="col s11">
-              <Textarea label="Write Your Message" className="messagebox input-field" s={12} />
-            </div>
-            <div className="col s1">
-              <Button type="submit" waves="light" className="input-field">
-                <Icon center>
-                  send
-                </Icon>
-              </Button>
-            </div>
-          </div>
-        </div>
-
-      </footer>
+      <Footer sendMessage={sendMessage}/>
       <SignUpModal visible={signUpModal} signUp={signUp} setVisible={setSignUpModal}/>
       <div className="sidenav-overlay" style={overlayStyle} onClick={()=>{setSideBarVisible(false);}}></div>
     </div>

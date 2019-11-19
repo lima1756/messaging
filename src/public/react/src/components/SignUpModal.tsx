@@ -19,7 +19,6 @@ const changeHandle = (e: React.FormEvent<HTMLInputElement>, setter: Function) =>
 const SignUpModal: React.FC<props> = ({visible, signUp, signUpError, setVisible}) => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
-    const [img, setImg] = useState("");
     let fileInput = createRef<HTMLInputElement>();
     return (
         <Modal header="Welcome!" bottomSheet open={visible}
