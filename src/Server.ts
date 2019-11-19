@@ -22,6 +22,14 @@ class MessagingServer extends Server {
     constructor() {
         super(true);
         //this.app.use(cors);
+        this.app.use((req, res, next) => {
+            res.header('Access-Control-Allow-Origin', req.get('Origin') || '*');
+            res.header('Access-Control-Allow-Credentials', 'true');
+            res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
+            res.header('Access-Control-Expose-Headers', 'Content-Length');
+            res.header('Access-Control-Allow-Headers', 'Accept, Authorization, Content-Type, X-Requested-With, Range');
+            return next();
+        })
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({extended: true}));
         this.app.use(express.static(MessagingServer.PATH));
@@ -33,7 +41,6 @@ class MessagingServer extends Server {
         }
         else{
             this.app.get('*', (req, res) => {
-                Logger.Info("SERVING!!!");
                 res.sendFile(path.join(MessagingServer.PATH, 'index.html' ))
             });
         }
