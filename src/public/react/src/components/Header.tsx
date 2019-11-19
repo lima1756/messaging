@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { SideNav, SideNavItem, TextInput } from 'react-materialize';
 
 interface props{
@@ -21,12 +21,29 @@ const changeHandle = (e: React.FormEvent<HTMLInputElement>, setter: Function) =>
 
 const Header: React.FC<props> = ({sideBarVisible, setSideBarVisible, onContactClick, currentUser, chatUser, contacts, addFriend}) => {
     const [searchUser, setSearchUser] = useState("");
+
+    const [sticky, setSticky] = useState(false);
+    const refHeader = useRef<HTMLElement>(null);
+
+    const handleScroll = () => {
+        if(refHeader && refHeader.current)
+          setSticky(refHeader.current.getBoundingClientRect().top <= 0);
+    };
+    
+    useEffect(() => {
+        window.addEventListener('scroll', handleScroll);
+    
+        return () => {
+          window.removeEventListener('scroll', () => handleScroll);
+        };
+    }, []);
+
     if(chatUser){
         console.log(chatUser.name);
         console.log(chatUser.image);
     }
     return (
-        <header>
+        <header className={sticky?"sticky":""} ref={refHeader}>
             <nav className="top-nav">
                 <div className="container">
                     <div className="nav-wrapper">

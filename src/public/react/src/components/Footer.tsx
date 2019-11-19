@@ -25,7 +25,7 @@ const Footer: React.FC<props> = ({sendMessage}) => {
               <Textarea label="Write Your Message" value={message} className="messagebox input-field" s={12} onChange={(e:React.FormEvent<HTMLInputElement>) => changeHandle(e, setMessage)}/>
             </div>
             <div className="col s1">
-              <Button type="submit" waves="light" className="input-field" onClick={()=>{sendMessage(message)}}>
+              <Button type="submit" waves="light" className="input-field" onClick={()=>{sendMessage(message); setMessage("");}}>
                 <Icon center>
                   send
                 </Icon>
