@@ -20,9 +20,6 @@ class MessagingServer extends Server {
 
     constructor() {
         super(true);
-        if (process.env.NODE_ENV === 'production'){
-            this.app.use(cors);
-        }
         this.app.use((req, res, next) => {
             res.header('Access-Control-Allow-Origin', req.get('Origin') || '*');
             res.header('Access-Control-Allow-Credentials', 'true');
