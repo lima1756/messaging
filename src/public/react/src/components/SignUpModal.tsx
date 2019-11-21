@@ -38,7 +38,7 @@ const SignUpModal: React.FC<props> = ({visible, signUp, signUpError, setVisible}
             <div className="file-field input-field">
                 <div className="btn">
                     <span>File</span>
-                    <input type="file" ref={fileInput} onChange={()=>{console.log(fileInput)}}/>
+                    <input type="file" ref={fileInput} />
                 </div>
                 <div className="file-path-wrapper">
                     <input className="file-path validate" type="text" placeholder="Upload your profile img"/>

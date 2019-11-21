@@ -37,11 +37,7 @@ const Header: React.FC<props> = ({sideBarVisible, setSideBarVisible, onContactCl
           window.removeEventListener('scroll', () => handleScroll);
         };
     }, []);
-
-    if(chatUser){
-        console.log(chatUser.name);
-        console.log(chatUser.image);
-    }
+    
     return (
         <header className={sticky?"sticky":""} ref={refHeader}>
             <nav className="top-nav">

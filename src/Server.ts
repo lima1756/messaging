@@ -7,11 +7,10 @@ import { Logger } from '@overnightjs/logger';
 import * as socketIO from 'socket.io'
 import SocketIOController from './controllers/socketio/SocketIOController';
 import cors from 'cors';
-
+import http from 'http';
 
 class MessagingServer extends Server {
 
-    private io: SocketIOController;
     private port: number | string;
     private static readonly PORT: number = 3001;
     private static readonly SERVER_START_MSG: string = 'Server started on port: ';
@@ -21,7 +20,7 @@ class MessagingServer extends Server {
 
     constructor() {
         super(true);
-        //this.app.use(cors);
+        // this.app.use(cors);
         this.app.use((req, res, next) => {
             res.header('Access-Control-Allow-Origin', req.get('Origin') || '*');
             res.header('Access-Control-Allow-Credentials', 'true');
@@ -34,15 +33,13 @@ class MessagingServer extends Server {
         this.app.use(bodyParser.urlencoded({extended: true}));
         this.app.use(express.static(MessagingServer.PATH));
         this.port = process.env.PORT || MessagingServer.PORT;
-        this.io = new SocketIOController(socketIO.listen(3002));
+        
         this.setupControllers();
         if (process.env.NODE_ENV !== 'production'){
-            this.app.get('*', (req, res) => res.send(MessagingServer.DEV_MSG));
+            this.app.get('/', (req, res) => res.send(MessagingServer.DEV_MSG));
         }
         else{
-            this.app.get('*', (req, res) => {
-                res.sendFile(path.join(MessagingServer.PATH, 'index.html' ))
-            });
+            this.app.get('/', (req, res) => res.sendFile(path.join(MessagingServer.PATH, 'index.html' )));
         }
     }
 
@@ -58,11 +55,12 @@ class MessagingServer extends Server {
     }
 
     public start(): void {
-        this.app.listen(this.port, () => {
+        const server = new http.Server(this.app);
+        const io = new SocketIOController(socketIO.listen(server));
+        server.listen(this.port, () => {
             Logger.Imp(MessagingServer.SERVER_START_MSG + this.port);
         });
-
-        this.io.socketEvents();
+        io.socketEvents();
     }
 }
 
