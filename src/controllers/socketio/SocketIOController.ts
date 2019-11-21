@@ -22,8 +22,8 @@ class SocketIOController {
                 const user = this.userManagement.getUserNoSocket(data.from.email);
                 this.userManagement.updateUser(userRequest);
                 const friend = this.userManagement.getUserNoSocket(data.friendEmail);
-                const friendSocket = this.userManagement.getUser(data.friendEmail).socket;
                 if(friend){
+                    const friendSocket = this.userManagement.getUser(data.friendEmail).socket;
                     userRequest.socket.emit('addFriend', {
                         userExist: true,
                         user: friend
