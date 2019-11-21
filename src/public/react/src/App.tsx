@@ -23,7 +23,7 @@ const App: React.FC = () => {
     publicKey: "",
   }
 
-  const socket = socketIOClient.connect(":3001");
+  const socket = socketIOClient.connect();
   console.log(socket);
   socket.on("addFriend", (data: any)=>{
     if(data.userExist){
